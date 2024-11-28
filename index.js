@@ -33,12 +33,45 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/keyboards/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await keyboardCollection.findOne(query);
+      res.send(result);
+    });
+
     app.post("/keyboards", async (req, res) => {
       const newKeyboard = req.body;
       console.log(newKeyboard);
 
       const result = await keyboardCollection.insertOne(newKeyboard);
       res.send(result);
+    });
+
+    app.put("/keyboards/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedKeyboard = req.body;
+      const keyboard = {
+        $set: {
+          name: updatedKeyboard.name,
+          color: updatedKeyboard.color,
+          switchType: updatedKeyboard.switchType,
+          layout: updatedKeyboard.layout,
+          connection: updatedKeyboard.connection,
+          price: updatedKeyboard.price,
+          photo: updatedKeyboard.photo,
+        },
+      };
+
+      const result = await keyboardCollection.updateOne(
+        filter,
+        keyboard,
+        options
+      );
+
+      res.send(result)
     });
 
     app.delete("/keyboards/:id", async (req, res) => {
