@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
 
     const keyboardCollection = client.db("keyboardDB").collection("keyboards");
+    const usersCollection = client.db("keyboardDB").collection("users");
 
     app.get("/keyboards", async (req, res) => {
       const cursor = keyboardCollection.find();
@@ -71,13 +72,28 @@ async function run() {
         options
       );
 
-      res.send(result)
+      res.send(result);
     });
 
     app.delete("/keyboards/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await keyboardCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // users apis
+    app.get("/users", async (req, res) => {
+      const cursor = usersCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      console.log(newUser);
+
+      const result = await usersCollection.insertOne(newUser);
       res.send(result);
     });
 
