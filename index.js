@@ -41,9 +41,18 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/myKeyboards/:email", async (req, res) => {
+      const user_email = req.params.email;
+
+      const query = { email: user_email };
+      const cursor = keyboardCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     app.post("/keyboards", async (req, res) => {
       const newKeyboard = req.body;
-      console.log(newKeyboard);
+      // console.log(newKeyboard);
 
       const result = await keyboardCollection.insertOne(newKeyboard);
       res.send(result);
@@ -91,7 +100,7 @@ async function run() {
 
     app.post("/users", async (req, res) => {
       const newUser = req.body;
-      console.log(newUser);
+      // console.log(newUser);
 
       const result = await usersCollection.insertOne(newUser);
       res.send(result);
