@@ -21,127 +21,125 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+  // try {
+  // Connect the client to the server	(optional starting in v4.7)
+  // await client.connect();
 
-    const keyboardCollection = client.db("keyboardDB").collection("keyboards");
-    const usersCollection = client.db("keyboardDB").collection("users");
+  const keyboardCollection = client.db("keyboardDB").collection("keyboards");
+  const usersCollection = client.db("keyboardDB").collection("users");
 
-    app.get("/keyboards", async (req, res) => {
-      const { search } = req.query;
+  app.get("/keyboards", async (req, res) => {
+    const { search } = req.query;
 
-      let option = {};
-      if (search) {
-        option = { name: { $regex: search, $options: "i" } };
-      }
+    let option = {};
+    if (search) {
+      option = { name: { $regex: search, $options: "i" } };
+    }
 
-      const cursor = keyboardCollection.find(option);
-      const result = await cursor.toArray();
-      res.send(result);
-    });
+    const cursor = keyboardCollection.find(option);
+    const result = await cursor.toArray();
+    res.send(result);
+  });
 
-    app.get("/keyboards/featured", async (req, res) => {
-      const cursor = keyboardCollection.find().limit(6);
-      const result = await cursor.toArray();
-      res.send(result);
-    });
+  app.get("/keyboards/featured", async (req, res) => {
+    const cursor = keyboardCollection.find().limit(6);
+    const result = await cursor.toArray();
+    res.send(result);
+  });
 
-    app.get("/keyboards/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await keyboardCollection.findOne(query);
-      res.send(result);
-    });
+  app.get("/keyboards/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await keyboardCollection.findOne(query);
+    res.send(result);
+  });
 
-    app.get("/myKeyboards/:email", async (req, res) => {
-      const user_email = req.params.email;
+  app.get("/myKeyboards/:email", async (req, res) => {
+    const user_email = req.params.email;
 
-      const query = { email: user_email };
-      const cursor = keyboardCollection.find(query);
-      const result = await cursor.toArray();
-      res.send(result);
-    });
+    const query = { email: user_email };
+    const cursor = keyboardCollection.find(query);
+    const result = await cursor.toArray();
+    res.send(result);
+  });
 
-    app.post("/keyboards", async (req, res) => {
-      const newKeyboard = req.body;
-      // console.log(newKeyboard);
+  app.post("/keyboards", async (req, res) => {
+    const newKeyboard = req.body;
+    // console.log(newKeyboard);
 
-      const result = await keyboardCollection.insertOne(newKeyboard);
-      res.send(result);
-    });
+    const result = await keyboardCollection.insertOne(newKeyboard);
+    res.send(result);
+  });
 
-    app.put("/keyboards/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedKeyboard = req.body;
-      const keyboard = {
-        $set: {
-          name: updatedKeyboard.name,
-          color: updatedKeyboard.color,
-          switchType: updatedKeyboard.switchType,
-          keycaps: updatedKeyboard.keycaps,
-          layout: updatedKeyboard.layout,
-          connection: updatedKeyboard.connection,
-          price: updatedKeyboard.price,
-          photo: updatedKeyboard.photo,
-        },
-      };
+  app.put("/keyboards/:id", async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updatedKeyboard = req.body;
+    const keyboard = {
+      $set: {
+        name: updatedKeyboard.name,
+        color: updatedKeyboard.color,
+        switchType: updatedKeyboard.switchType,
+        keycaps: updatedKeyboard.keycaps,
+        layout: updatedKeyboard.layout,
+        connection: updatedKeyboard.connection,
+        price: updatedKeyboard.price,
+        photo: updatedKeyboard.photo,
+      },
+    };
 
-      const result = await keyboardCollection.updateOne(
-        filter,
-        keyboard,
-        options
-      );
-
-      res.send(result);
-    });
-
-    app.delete("/keyboards/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await keyboardCollection.deleteOne(query);
-      res.send(result);
-    });
-
-    // users apis
-    app.get("/users", async (req, res) => {
-      const cursor = usersCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    app.post("/users", async (req, res) => {
-      const newUser = req.body;
-      // console.log(newUser);
-
-      const result = await usersCollection.insertOne(newUser);
-      res.send(result);
-    });
-
-    app.patch("/users", async (req, res) => {
-      const email = req.body.email;
-      const filter = { email };
-      const updatedDoc = {
-        $set: {
-          lastSignInTime: req.body?.lastSignInTime,
-        },
-      };
-
-      const result = await usersCollection.updateOne(filter, updatedDoc);
-      res.send(result);
-    });
-
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
+    const result = await keyboardCollection.updateOne(
+      filter,
+      keyboard,
+      options
     );
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
+
+    res.send(result);
+  });
+
+  app.delete("/keyboards/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await keyboardCollection.deleteOne(query);
+    res.send(result);
+  });
+
+  // users apis
+  app.get("/users", async (req, res) => {
+    const cursor = usersCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+  });
+
+  app.post("/users", async (req, res) => {
+    const newUser = req.body;
+    // console.log(newUser);
+
+    const result = await usersCollection.insertOne(newUser);
+    res.send(result);
+  });
+
+  app.patch("/users", async (req, res) => {
+    const email = req.body.email;
+    const filter = { email };
+    const updatedDoc = {
+      $set: {
+        lastSignInTime: req.body?.lastSignInTime,
+      },
+    };
+
+    const result = await usersCollection.updateOne(filter, updatedDoc);
+    res.send(result);
+  });
+
+  // Send a ping to confirm a successful connection
+  await client.db("admin").command({ ping: 1 });
+  console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  // } finally {
+  // Ensures that the client will close when you finish/error
+  // await client.close();
+  // }
 }
 run().catch(console.dir);
 
