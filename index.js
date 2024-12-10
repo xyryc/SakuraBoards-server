@@ -29,7 +29,14 @@ async function run() {
     const usersCollection = client.db("keyboardDB").collection("users");
 
     app.get("/keyboards", async (req, res) => {
-      const cursor = keyboardCollection.find();
+      const { search } = req.query;
+
+      let option = {};
+      if (search) {
+        option = { name: { $regex: search, $options: "i" } };
+      }
+
+      const cursor = keyboardCollection.find(option);
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -74,6 +81,7 @@ async function run() {
           name: updatedKeyboard.name,
           color: updatedKeyboard.color,
           switchType: updatedKeyboard.switchType,
+          keycaps: updatedKeyboard.keycaps,
           layout: updatedKeyboard.layout,
           connection: updatedKeyboard.connection,
           price: updatedKeyboard.price,
