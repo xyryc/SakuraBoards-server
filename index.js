@@ -28,16 +28,28 @@ async function run() {
   const keyboardCollection = client.db("keyboardDB").collection("keyboards");
   const usersCollection = client.db("keyboardDB").collection("users");
 
+  app.get("/keyboardsCount", async (req, res) => {
+    const count = await keyboardCollection.estimatedDocumentCount();
+    res.send({ count });
+  });
+
   app.get("/keyboards", async (req, res) => {
     const { search } = req.query;
+    const page = parseInt(req.query.page);
+    const size = parseInt(req.query.size);
+    console.log(page, size);
 
     let option = {};
     if (search) {
       option = { name: { $regex: search, $options: "i" } };
     }
 
-    const cursor = keyboardCollection.find(option);
-    const result = await cursor.toArray();
+    const result = await keyboardCollection
+      .find(option)
+      .skip(page * size)
+      .limit(size)
+      .toArray();
+
     res.send(result);
   });
 
@@ -134,8 +146,8 @@ async function run() {
   });
 
   // Send a ping to confirm a successful connection
-  await client.db("admin").command({ ping: 1 });
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  // await client.db("admin").command({ ping: 1 });
+  // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   // } finally {
   // Ensures that the client will close when you finish/error
   // await client.close();
