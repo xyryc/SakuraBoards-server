@@ -37,7 +37,6 @@ async function run() {
     const { search } = req.query;
     const page = parseInt(req.query.page);
     const size = parseInt(req.query.size);
-    console.log(page, size);
 
     let option = {};
     if (search) {
